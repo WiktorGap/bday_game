@@ -214,9 +214,7 @@ function draw() {
     ctx.save();
     ctx.translate(0, -cameraY);
 
-    const singleBgHeight = worldWidth * (bgImage.naturalHeight / bgImage.naturalWidth);
-    ctx.drawImage(bgImage, 0, worldHeight - singleBgHeight, worldWidth, singleBgHeight); 
-    ctx.drawImage(bgImage, 0, worldHeight - (singleBgHeight * 2), worldWidth, singleBgHeight);
+    ctx.drawImage(bgImage, 0, 0, worldWidth, worldHeight);
 
     for (let p of platforms) {
         ctx.fillStyle = '#fff0f5'; 
@@ -253,30 +251,31 @@ function draw() {
         }
         ctx.globalAlpha = 1.0; 
 
-        ctx.textAlign = 'center';
-        
         ctx.shadowColor = '#c71585';
         ctx.shadowOffsetX = 3;    
         ctx.shadowOffsetY = 3;       
         ctx.shadowBlur = 2;     
-        
         ctx.fillStyle = '#fff'; 
         
+        let fontSmall = Math.min(30, Math.max(14, Math.floor(canvas.width * 0.045)));
+        let fontBig = Math.min(70, Math.max(26, Math.floor(canvas.width * 0.08)));
+        let fontEmoji = Math.min(60, Math.max(26, Math.floor(canvas.width * 0.09)));
 
-        ctx.font = 'bold 28px "Courier New", Courier, monospace';
-        ctx.fillText('WSZYSTKIEGO NAJLEPSZEGO', canvas.width/2, canvas.height/2 - 40);
+        let startY = (canvas.height / 2) - fontBig;
+
+
+        ctx.font = `bold ${fontSmall}px "Courier New", Courier, monospace`;
+        ctx.fillText('WSZYSTKIEGO NAJLEPSZEGO', canvas.width/2, startY);
+        
+        ctx.font = `bold ${fontBig}px "Courier New", Courier, monospace`;
+        ctx.fillText('AMELKA!', canvas.width/2, startY + (fontBig * 1.1));
+
+        ctx.font = `${fontEmoji}px Arial`;
+        ctx.fillText('❤️❤️❤️🎂', canvas.width/2, startY + (fontBig * 2.2));
         
 
-        ctx.font = 'bold 45px "Courier New", Courier, monospace';
-        ctx.fillText('AMELKA!', canvas.width/2, canvas.height/2 + 5);
-                
-
-        ctx.font = '40px Arial';
-        ctx.fillText('❤️❤️❤️🎂', canvas.width/2, canvas.height/2 + 55);
-        
-
-        ctx.font = 'bold 22px "Courier New", Courier, monospace';
-        ctx.fillText('W DNIU 20 URODZIN', canvas.width/2, canvas.height/2 + 105);
+        ctx.font = `bold ${fontSmall}px "Courier New", Courier, monospace`;
+        ctx.fillText('W DNIU 20 URODZIN', canvas.width/2, startY + (fontBig * 3.1));
 
         ctx.shadowColor = 'transparent';
     }
