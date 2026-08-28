@@ -77,7 +77,8 @@ function createFirework() {
 function generateLevel() {
     worldWidth = canvas.width;
     const bgRatio = bgImage.naturalHeight / bgImage.naturalWidth;
-    worldHeight = worldWidth * bgRatio;
+
+    worldHeight = (worldWidth * bgRatio) * 2; 
 
     platforms.length = 0;
     platforms.push({ x: 0, y: worldHeight - 50, w: worldWidth, h: 50 });
@@ -215,7 +216,9 @@ function draw() {
     ctx.save();
     ctx.translate(0, -cameraY);
 
-    ctx.drawImage(bgImage, 0, 0, worldWidth, worldHeight);
+    const singleBgHeight = worldWidth * (bgImage.naturalHeight / bgImage.naturalWidth);
+    ctx.drawImage(bgImage, 0, worldHeight - singleBgHeight, worldWidth, singleBgHeight); 
+    ctx.drawImage(bgImage, 0, worldHeight - (singleBgHeight * 2), worldWidth, singleBgHeight);
 
     for (let p of platforms) {
         ctx.fillStyle = '#fff0f5'; 
@@ -254,23 +257,23 @@ function draw() {
 
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#c71585'; 
-        ctx.lineWidth = 4;
+        ctx.lineWidth = Math.max(2, Math.floor(canvas.width * 0.01));
         ctx.fillStyle = '#fff'; 
         
+        let fontSmall = Math.max(14, Math.floor(canvas.width * 0.05));
+        let fontBig = Math.max(24, Math.floor(canvas.width * 0.09));
 
-        ctx.font = 'bold 24px Courier New';
-        ctx.strokeText('WSZYSTKIEGO NAJLEPSZEGO', canvas.width/2, canvas.height/2 - 40);
-        ctx.fillText('WSZYSTKIEGO NAJLEPSZEGO', canvas.width/2, canvas.height/2 - 40);
+        ctx.font = `bold ${fontSmall}px Courier New`;
+        ctx.strokeText('WSZYSTKIEGO NAJLEPSZEGO', canvas.width/2, canvas.height/2 - fontBig);
+        ctx.fillText('WSZYSTKIEGO NAJLEPSZEGO', canvas.width/2, canvas.height/2 - fontBig);
         
-
-        ctx.font = 'bold 45px Courier New';
+        ctx.font = `bold ${fontBig}px Courier New`;
         ctx.strokeText('Amelka ❤️🎂 !', canvas.width/2, canvas.height/2 + 10);
         ctx.fillText('Amelka ❤️🎂 !', canvas.width/2, canvas.height/2 + 10);
         
-
-        ctx.font = 'bold 22px Courier New';
-        ctx.strokeText('W DNIU 20 URODZIN', canvas.width/2, canvas.height/2 + 55);
-        ctx.fillText('W DNIU 20 URODZIN', canvas.width/2, canvas.height/2 + 55);
+        ctx.font = `bold ${fontSmall}px Courier New`;
+        ctx.strokeText('W DNIU 20 URODZIN', canvas.width/2, canvas.height/2 + fontBig + 10);
+        ctx.fillText('W DNIU 20 URODZIN', canvas.width/2, canvas.height/2 + fontBig + 10);
     }
 }
 
