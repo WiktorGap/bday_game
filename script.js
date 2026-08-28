@@ -211,10 +211,17 @@ function draw() {
         return;
     }
 
+    const bgH = canvas.width * (bgImage.naturalHeight / bgImage.naturalWidth);
+    
+    let bgOffsetY = ((-cameraY * 0.5) % bgH + bgH) % bgH;
+
+    ctx.drawImage(bgImage, 0, bgOffsetY - bgH, canvas.width, bgH);
+    ctx.drawImage(bgImage, 0, bgOffsetY, canvas.width, bgH);
+    ctx.drawImage(bgImage, 0, bgOffsetY + bgH, canvas.width, bgH);
+
     ctx.save();
     ctx.translate(0, -cameraY);
 
-    ctx.drawImage(bgImage, 0, 0, worldWidth, worldHeight);
 
     for (let p of platforms) {
         ctx.fillStyle = '#fff0f5'; 
