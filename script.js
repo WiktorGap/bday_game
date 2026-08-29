@@ -51,6 +51,19 @@ const player = {
 const platforms = [];
 const goal = { x: 0, y: 0, size: 40 };
 
+let resetBtn = { x: 0, y: 0, w: 250, h: 60 };
+
+function resetGame() {
+    player.x = worldWidth / 2 - player.width / 2;
+    player.y = worldHeight - 150;
+    player.dy = 0;
+    player.dx = 0;
+    cameraY = worldHeight - canvas.height;
+    fireworks.length = 0;
+    gameState = 'playing';
+}
+
+
 const fireworks = [];
 const fwColors = ['#ff1493', '#00ffff', '#ffff00', '#ffb6c1', '#00ff00'];
 
@@ -134,6 +147,22 @@ bindTouch('btnRight', 'ArrowRight');
 bindTouch('btnJump', 'ArrowUp');
 
 
+canvas.addEventListener('pointerdown', (e) => {
+    if (gameState === 'won') {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const clickX = (e.clientX - rect.left) * scaleX;
+        const clickY = (e.clientY - rect.top) * scaleY;
+
+        if (clickX >= resetBtn.x && clickX <= resetBtn.x + resetBtn.w &&
+            clickY >= resetBtn.y && clickY <= resetBtn.y + resetBtn.h) {
+            resetGame();
+        }
+    }
+});
+
+
 function update() {
     if (gameState === 'won') {
 
@@ -215,9 +244,11 @@ function draw() {
     
     let bgOffsetY = ((-cameraY * 0.5) % bgH + bgH) % bgH;
 
+    ctx.filter = 'hue-rotate(-20deg) saturate(70%)';
     ctx.drawImage(bgImage, 0, bgOffsetY - bgH, canvas.width, bgH);
     ctx.drawImage(bgImage, 0, bgOffsetY, canvas.width, bgH);
     ctx.drawImage(bgImage, 0, bgOffsetY + bgH, canvas.width, bgH);
+    ctx.filter = 'none';
 
     ctx.save();
     ctx.translate(0, -cameraY);
@@ -247,7 +278,7 @@ function draw() {
 
     ctx.restore(); 
 
-    if (gameState === 'won') {
+   if (gameState === 'won') {
         ctx.fillStyle = 'rgba(255, 105, 180, 0.7)'; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
@@ -266,8 +297,6 @@ function draw() {
         
         let fontSmall = Math.min(30, Math.max(14, Math.floor(canvas.width * 0.045)));
         let fontBig = Math.min(70, Math.max(26, Math.floor(canvas.width * 0.08)));
-        let fontEmoji = Math.min(60, Math.max(26, Math.floor(canvas.width * 0.09)));
-
         let startY = (canvas.height / 2) - fontBig;
 
 
@@ -277,14 +306,96 @@ function draw() {
         ctx.font = `bold ${fontBig}px "Courier New", Courier, monospace`;
         ctx.fillText('AMELKA!', canvas.width/2, startY + (fontBig * 1.1));
 
-        ctx.font = `${fontEmoji}px Arial`;
-        ctx.fillText('❤️❤️❤️🎂', canvas.width/2, startY + (fontBig * 2.2));
+        if (gameState === 'won') {
+        ctx.fillStyle = 'rgba(255, 105, 180, 0.7)'; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
+        for (let p of fireworks) {
+            ctx.globalAlpha = Math.max(0, p.life);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, 6, 6); 
+        }
+        ctx.globalAlpha = 1.0; 
 
-        ctx.font = `bold ${fontSmall}px "Courier New", Courier, monospace`;
-        ctx.fillText('W DNIU 20 URODZIN', canvas.width/2, startY + (fontBig * 3.1));
+        ctx.shadowColor = '#c71585';
+        ctx.shadowOffsetX = 3;    
+        ctx.shadowOffsetY = 3;       
+        ctx.shadowBlur = 2;     
+        ctx.fillStyle = '#fff'; 
+        
+        // Jeden, spójny rozmiar czcionki dla wszystkich napisów
+        let fontSize = Math.min(35, Math.max(16, Math.floor(canvas.width * 0.05)));
+        let startY = (canvas.height / 2) - (fontSize * 2.5);
+
+        ctx.font = `bold ${fontSize}px "Courier New", Courier, monospace`;
+        ctx.fillText('WSZYSTKIEGO NAJLEPSZEGO', canvas.width/2, startY);
+        ctx.fillText('AMELKA!', canvas.width/2, startY + (fontSize * 1.5));
+
+
+        ctx.save();
+        let heartY = startY + (fontSize * 3.2);
+        let time = Date.now() * 0.005; 
+        let pulse = 1 + Math.sin(time) * 0.15; 
+
+        ctx.translate(canvas.width / 2, heartY - 15);
+        ctx.scale(pulse, pulse); 
+
+        const heartPixels = [
+            [0,1,1,0,1,1,0],
+            [1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1],
+            [0,1,1,1,1,1,0],
+            [0,0,1,1,1,0,0],
+            [0,0,0,1,0,0,0]
+        ];
+        
+        let pSize = Math.min(6, Math.max(3, Math.floor(canvas.width * 0.01))); 
+        ctx.fillStyle = '#ff0000';
+        ctx.shadowColor = 'transparent'; 
+        
+        let spacing = pSize * 9; 
+        for (let i = -1; i <= 1; i++) {
+            let offsetX = i * spacing;
+            for (let r = 0; r < heartPixels.length; r++) {
+                for (let c = 0; c < heartPixels[r].length; c++) {
+                    if (heartPixels[r][c]) {
+                        ctx.fillRect(offsetX + c * pSize - (3.5 * pSize), r * pSize - (3 * pSize), pSize + 0.5, pSize + 0.5);
+                    }
+                }
+            }
+        }
+        ctx.restore();
+        
+        ctx.shadowColor = '#c71585';
+        ctx.shadowBlur = 2; 
+        ctx.fillStyle = '#fff';
+
+        ctx.font = `bold ${fontSize}px "Courier New", Courier, monospace`;
+        ctx.fillText('W DNIU 20 URODZIN', canvas.width/2, startY + (fontSize * 5.2));
+
+        resetBtn.w = Math.max(200, canvas.width * 0.4);
+        resetBtn.h = Math.max(50, canvas.height * 0.07);
+        resetBtn.x = (canvas.width / 2) - (resetBtn.w / 2);
+        resetBtn.y = startY + (fontSize * 6.5);
 
         ctx.shadowColor = 'transparent';
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.roundRect(resetBtn.x, resetBtn.y, resetBtn.w, resetBtn.h, 15);
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#ff1493';
+        ctx.stroke();
+
+        ctx.fillStyle = '#ff1493';
+        let btnFont = Math.min(24, Math.max(14, Math.floor(canvas.width * 0.04)));
+        ctx.font = `bold ${btnFont}px "Courier New", Courier, monospace`;
+        ctx.fillText('RESET MAPY', canvas.width/2, resetBtn.y + (resetBtn.h / 1.5) - 2);
+    }
     }
 }
 
